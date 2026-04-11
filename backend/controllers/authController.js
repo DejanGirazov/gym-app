@@ -21,6 +21,9 @@ export const signup = async (req, res)=>{
          if(password.length<6){
             return res.status(400).json({error:"Password must be at least 6 characters long"});
          }
+         if(!password || !email || !username || !gender || !height || !weight || !age){
+            return res.status(400).json({error:"All fields are required"});
+         }
          const salt = await bcrypt.genSalt(10);
          const hashedPassword = await bcrypt.hash(password, salt);
 

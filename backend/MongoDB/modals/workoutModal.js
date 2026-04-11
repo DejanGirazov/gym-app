@@ -24,15 +24,14 @@ const workoutSchema = new mongoose.Schema({
         },
         sets:{
             type: Number,
-            required: true
+            default: 0,
         },
         reps: {
             type: Number,
-            required: true
+            default: 0
         },
         weight: {
-            type: Number,
-            required: true, 
+            type: Number, 
             default: 0
         }
 

@@ -1,9 +1,23 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Russo+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Black+Ops+One&family=Russo+One&display=swap');
+@import "tailwindcss";
 @plugin "daisyui";
 
 body{
     font-family: "Bebas Neue", sans-serif;
-  font-weight: bold;
+    font-weight: bold;
+    background: linear-gradient(180deg, #000000 0%, #040c1a 50%, #051437 80%, #051841 100%);
+    margin: 0;
+    padding: 0;
 }
+
+p, h1, h2, h3, h4, h5, h6, button , input, label {
+  font-family: 'Black Ops One', sans-serif;
+}
+.list-exercises , .error {
+  font-family: Barlow Condensed, sans-serif;
+}
+
 
