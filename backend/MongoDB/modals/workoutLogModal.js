@@ -21,6 +21,17 @@ const workoutLogSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    totalTime:{
+        type: Number,
+        required: true
+    },
+    exercises: [{
+    exerciseName: { type: String },
+    sets: [{
+        reps: { type: Number },
+        weight: { type: Number }
+    }]
+}]
    
     
 },{

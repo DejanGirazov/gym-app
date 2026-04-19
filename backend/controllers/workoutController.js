@@ -81,7 +81,7 @@ export const getWorkout = async (req, res) => {
 
 export const updateLogs = async (req, res) => {
     try{
-        const {totalReps, totalWeight, exercises} = req.body;
+        const {totalReps, totalWeight, exercises, totalTime} = req.body;
         const id = req.params.id 
         const user = req.user._id;
         const workout = await workoutModal.findById(id);
@@ -91,7 +91,7 @@ export const updateLogs = async (req, res) => {
         if(workout.user.toString() !== user.toString()){
             return res.status(401).json({error: "Unauthorized"})
         }
-        const log = await workoutLogModal.create({user, workout, totalReps, totalWeight});
+        const log = await workoutLogModal.create({user, workout, totalReps, totalWeight, totalTime, exercises});
          await workoutModal.findByIdAndUpdate(id, { exercises })
 
         res.status(200).json(log);

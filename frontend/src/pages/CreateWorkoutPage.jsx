@@ -4,6 +4,7 @@ import { IoIosCreate } from "react-icons/io";
 import { useState } from "react";
 import exercises from "../data/exercises.json";
 import { MdDelete } from "react-icons/md";
+import { getWorkouts } from "../functions";
 
 const CreateWorkoutPage = () => {
   const [searchExercise, setSearchExercise] = useState("");
@@ -13,12 +14,6 @@ const CreateWorkoutPage = () => {
   const [selectedExercises, setSelectedExercises] = useState([]);
   const [editedExercises, setEditedExercises] = useState([]);
   const [selectedWorkout, setSelectedWorkout] = useState(null);
-
-  const handleExerciseChange = (index, field, value) => {
-    const updated = [...editedExercises];
-    updated[index] = { ...updated[index], [field]: value };
-    setEditedExercises(updated);
-  };
 
   const { mutate: createWorkout } = useMutation({
     mutationFn: async ({ title, exercises }) => {
@@ -56,24 +51,7 @@ const CreateWorkoutPage = () => {
     isError,
   } = useQuery({
     queryKey: ["workouts"],
-    queryFn: async () => {
-      try {
-        const res = await fetch("/api/workout/getWorkouts", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.message || "Failed to fetch workouts");
-        }
-        return data;
-      } catch (err) {
-        console.log(err);
-        throw err;
-      }
-    },
+    queryFn: getWorkouts,
   });
 
   const filteredExercises = exercises.filter((ex) =>
@@ -135,9 +113,9 @@ const CreateWorkoutPage = () => {
       }
     },
     onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["workouts"] })
-    }
-  })
+      queryClient.invalidateQueries({ queryKey: ["workouts"] });
+    },
+  });
 
   return (
     <>
@@ -171,7 +149,10 @@ const CreateWorkoutPage = () => {
                 >
                   Edit Workout
                 </button>
-                <button className="btn bg-red-600" onClick={() => deleteWorkout(workout._id)}>
+                <button
+                  className="btn bg-red-600"
+                  onClick={() => deleteWorkout(workout._id)}
+                >
                   <MdDelete />
                 </button>
               </div>
@@ -196,44 +177,60 @@ const CreateWorkoutPage = () => {
               key={exercise._id}
               className="flex items-center gap-3 mb-2 bg-blue-950 p-3 rounded"
             >
-              <div className="flex flex-col">
+              <div className="flex flex-col w-full">
                 <p>{exercise.exerciseName}</p>
-                <div className="flex gap-4 mt-2">
-                  <p>
-                    Sets:{" "}
-                    <input
-                      type="number"
-                      value={exercise.sets}
-                      onChange={(e) =>
-                        handleExerciseChange(index, "sets", e.target.value)
-                      }
-                      className="input w-15 h-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    />
-                  </p>
-                  <p>
-                    Reps:{" "}
-                    <input
-                      type="number"
-                      value={exercise.reps}
-                      onChange={(e) =>
-                        handleExerciseChange(index, "reps", e.target.value)
-                      }
-                      className="input w-15 h-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    />
-                  </p>
-                  <p>
-                    Weight:{" "}
-                    <input
-                      type="number"
-                      value={exercise.weight}
-                      onChange={(e) =>
-                        handleExerciseChange(index, "weight", e.target.value)
-                      }
-                      className="input w-15 h-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    />
-                    Kg
-                  </p>
-                </div>
+                {exercise.sets.map((set, setIndex) => (
+                  <div key={setIndex} className="flex gap-4 mt-2 items-center">
+                    <p>Set {setIndex + 1}</p>
+                    <p>
+                      Reps:{" "}
+                      <input
+                        type="number"
+                        value={set.reps}
+                        onChange={(e) => {
+                          const updated = [...editedExercises];
+                          updated[index].sets[setIndex].reps = e.target.value;
+                          setEditedExercises(updated);
+                        }}
+                        className="input w-15 h-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />
+                    </p>
+                    <p>
+                      Weight:{" "}
+                      <input
+                        type="number"
+                        value={set.weight}
+                        onChange={(e) => {
+                          const updated = [...editedExercises];
+                          updated[index].sets[setIndex].weight = e.target.value;
+                          setEditedExercises(updated);
+                        }}
+                        className="input w-15 h-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />{" "}
+                      Kg
+                    </p>
+                    <button
+                      className="btn btn-sm bg-red-600"
+                      onClick={() => {
+                        const updated = [...editedExercises];
+                        updated[index].sets.splice(setIndex, 1);
+                        setEditedExercises(updated);
+                      }}
+                    >
+                      <MdDelete />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  className="btn btn-sm mt-2"
+                  onClick={() => {
+                    const updated = [...editedExercises];
+                    updated[index].sets.push({ reps: 0, weight: 0 });
+                    setEditedExercises(updated);
+                  }}
+                >
+                  + Add Set
+                </button>
               </div>
             </div>
           ))}
@@ -241,7 +238,12 @@ const CreateWorkoutPage = () => {
             <form method="dialog">
               <button className="btn">Close</button>
             </form>
-            <button className="btn btn-primary"  onClick={() => updateWorkout({ exercises: editedExercises })}>Save Changes</button>
+            <button
+              className="btn btn-primary"
+              onClick={() => updateWorkout({ exercises: editedExercises })}
+            >
+              Save Changes
+            </button>
           </div>
         </div>
       </dialog>
