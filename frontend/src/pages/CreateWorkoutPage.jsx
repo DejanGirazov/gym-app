@@ -62,6 +62,7 @@ const CreateWorkoutPage = () => {
     const formattedExercises = selectedExercises.map((ex) => ({
       exerciseId: ex.id,
       exerciseName: ex.name,
+      sets: [{ reps: 0, weight: 0 }]
     }));
     createWorkout({ title: workoutTitle, exercises: formattedExercises });
   };

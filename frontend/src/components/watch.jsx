@@ -28,8 +28,9 @@ const StopWatch = ({ shouldStart, onTimeUpdate }) => {
     <div>
       {" "}
       <div className="flex flex-col items-center">
-        <p className="text-lg align-middle">
-         Total workout time<br/> {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
+      <p className="text-lg">Total workout time</p>
+        <p className="text-lg align-middle bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+          {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
         </p>
        
       </div>
@@ -62,10 +63,10 @@ const Timer = ({ expirySeconds }) => {
         {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
       </p>
       <div>
-      <button className="btn" onClick={start}>
+      <button className="btn btn-sm bg-cyan-900 border-cyan-700 " onClick={start}>
         <VscDebugStart className="h-5 w-5"/>
       </button>
-      <button className="btn" onClick={pause}>
+      <button className="btn btn-sm bg-cyan-900 border-cyan-700  "  onClick={pause}>
         <IoMdPause className="h-5 w-5"/>
       </button>
       </div>    

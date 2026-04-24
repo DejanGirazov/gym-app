@@ -74,17 +74,22 @@ const StartWorkoutPage = () => {
       totalReps,
       totalWeight,
       totalTime,
-      exercises: editedExercises})
+      exercises: editedExercises,
+    });
   };
 
   return (
     <div className="h-screen w-full flex items-center justify-start flex-col">
       {!selectedWorkout && (
-        <div>
-          <label>Choose one of your workouts:</label>
+        <div className="flex flex-col items-center">
+          <h1 className="text-2xl font-bold">Choose one of your already created workouts to start</h1>
           <div className="dropdown dropdown-hover">
-            <div tabIndex={0} role="button" className="btn m-1">
-              Workout
+            <div
+              tabIndex={0}
+              role="button"
+              className="btn bg-cyan-900 border-cyan-700 w-48 m-1"
+            >
+              Choose Workout
             </div>
             <ul
               tabIndex="-1"
@@ -111,8 +116,11 @@ const StartWorkoutPage = () => {
       )}
 
       {selectedWorkout && (
-        <div className="w-full flex justify-between gap-4">
-          <StopWatch shouldStart={selectedWorkout} onTimeUpdate={setTotalTime} />
+        <div className="w-full flex justify-between gap-4 ml-10 items-start">
+          <StopWatch
+            shouldStart={selectedWorkout}
+            onTimeUpdate={setTotalTime}
+          />
           <div className="flex flex-col items-center justify-between w-100">
             <label>
               Enter rest time (seconds):
@@ -129,11 +137,11 @@ const StartWorkoutPage = () => {
       )}
       {selectedWorkout && editedExercises.length > 0 && (
         <div className="flex flex-col justify-center items-center">
-          <h3 className="font-bold text-lg mb-4 w-full text-left">
+          <h3 className="font-bold text-3xl mb-4 w-full text-left">
             {selectedWorkout?.title}
           </h3>
           <div className="bg-blue-950 p-3 rounded">
-            <h3 className="font-bold text-md mb-2">
+            <h3 className="font-bold text-xl mb-2">
               {editedExercises[currentExerciseIndex]?.exerciseName}
             </h3>
             {editedExercises[currentExerciseIndex]?.sets.map(
@@ -151,7 +159,7 @@ const StartWorkoutPage = () => {
                           e.target.value;
                         setEditedExercises(updated);
                       }}
-                      className="input w-15 h-8"
+                      className="input w-18 h-8"
                     />
                   </p>
                   <p>
@@ -165,7 +173,7 @@ const StartWorkoutPage = () => {
                           e.target.value;
                         setEditedExercises(updated);
                       }}
-                      className="input w-15 h-8"
+                      className="input w-18 h-8"
                     />{" "}
                     Kg
                   </p>
@@ -221,7 +229,7 @@ const StartWorkoutPage = () => {
         </div>
       )}
       {selectedWorkout && (
-        <div className="flex justify-between gap-15">
+        <div className="flex justify-between gap-15 mt-10">
           <button
             className="btn bg-red-600"
             onClick={() => {

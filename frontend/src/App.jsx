@@ -48,7 +48,7 @@ const {data: authUser, isLoading}= useQuery({
 
  return (<div className='min-h-screen flex flex-col '>
     {authUser && <Header/>}
-    <div className='flex-1 pb-70'>
+    <div className='flex-1 pb-200'>
     <Routes>
       <Route path= '/' element={authUser ? <NavPage/>: <Navigate to="/login"/>}></Route>
       <Route path= '/createWorkout' element={authUser ? <CreateWorkoutPage/>: <Navigate to="/login"/>}></Route>   
