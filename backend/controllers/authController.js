@@ -44,6 +44,8 @@ export const signup = async (req, res) => {
       height,
       weight,
       age,
+      goal: null,
+      activityLevel: null,
     });
 
     if (newUser) {
@@ -58,6 +60,8 @@ export const signup = async (req, res) => {
         weight: newUser.weight,
         height: newUser.height,
         age: newUser.age,
+        goal: null,
+        activityLevel: null,
       });
     } else {
       res.status(400).json({ error: "User not created" });
