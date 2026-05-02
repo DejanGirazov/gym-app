@@ -49,18 +49,16 @@ export const signup = async (req, res) => {
     if (newUser) {
       generateTokenAndSetCookie(newUser._id, res);
       await newUser.save();
-      res
-        .status(200)
-        .json({
-          message: "User created successfully",
-          _id: newUser._id,
-          gender: newUser.gender,
-          username: newUser.username,
-          email: newUser.email,
-          weight: newUser.weight,
-          height: newUser.height,
-          age: newUser.age,
-        });
+      res.status(200).json({
+        message: "User created successfully",
+        _id: newUser._id,
+        gender: newUser.gender,
+        username: newUser.username,
+        email: newUser.email,
+        weight: newUser.weight,
+        height: newUser.height,
+        age: newUser.age,
+      });
     } else {
       res.status(400).json({ error: "User not created" });
     }
@@ -82,18 +80,16 @@ export const login = async (req, res) => {
       return res.status(400).json({ error: "Invalid password" });
     }
     generateTokenAndSetCookie(user._id, res);
-    res
-      .status(200)
-      .json({
-        message: "User logged in successfully",
-        _id: user._id,
-        gender: user.gender,
-        username: user.username,
-        email: user.email,
-        weight: user.weight,
-        height: user.height,
-        age: user.age,
-      });
+    res.status(200).json({
+      message: "User logged in successfully",
+      _id: user._id,
+      gender: user.gender,
+      username: user.username,
+      email: user.email,
+      weight: user.weight,
+      height: user.height,
+      age: user.age,
+    });
   } catch (err) {
     console.log(err.message);
     res.status(500).json({ error: "Server error", errorMessage: err.message });
@@ -112,8 +108,17 @@ export const logout = async (req, res) => {
 
 export const update = async (req, res) => {
   try {
-    const { email, username, newPassword, age, height, weight, gender } =
-      req.body;
+    const {
+      email,
+      username,
+      newPassword,
+      age,
+      height,
+      weight,
+      gender,
+      goal,
+      activityLevel,
+    } = req.body;
     const user = await User.findOne(req.user._id);
     if (!user) {
       return res.status(400).json({ error: "User not found" });
@@ -130,7 +135,8 @@ export const update = async (req, res) => {
     user.height = height;
     user.weight = weight;
     user.gender = gender;
-
+    user.goal = goal;
+    user.activityLevel = activityLevel;
     await user.save();
     res.status(200).json({ message: "Profile updated successfully" });
   } catch (err) {
@@ -145,19 +151,6 @@ export const getMe = async (req, res) => {
     res.status(200).json(user);
   } catch (err) {
     console.log(err.message);
-    res.status(500).json({ error: "Server error", errorMessage: err.message });
-  }
-};
-export const updateMe = async (req, res) => {
-  try {
-    const { height, weight, age, goal, activityLevel } = req.body;
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      { height, weight, age, goal, activityLevel },
-      { new: true },
-    ).select("-password");
-    res.status(200).json(user);
-  } catch (err) {
     res.status(500).json({ error: "Server error", errorMessage: err.message });
   }
 };
