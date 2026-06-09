@@ -5,6 +5,8 @@ import cookieParser from 'cookie-parser'
 import connectDB from './MongoDB/connectDB.js'
 import authRoutes from './routes/authRoutes.js'
 import workoutRoutes from './routes/workoutRoutes.js'
+import mealRoutes from './routes/mealRoutes.js'
+import cardioRoutes from './routes/cardioRoutes.js'
 
 
 dotenv.config()
@@ -21,6 +23,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/workout', workoutRoutes);
+app.use('/api/nutrition', mealRoutes);
+app.use('/api/cardio', cardioRoutes);
 if(process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../frontend/dist')))
 

@@ -1,9 +1,8 @@
-import React from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { IoIosCreate } from "react-icons/io";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import exercises from "../data/exercises.json";
+import { IoIosCreate } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
+import exercises from "../data/exercises.json";
 import { getWorkouts } from "../functions";
 
 const CreateWorkoutPage = () => {
@@ -62,7 +61,7 @@ const CreateWorkoutPage = () => {
     const formattedExercises = selectedExercises.map((ex) => ({
       exerciseId: ex.id,
       exerciseName: ex.name,
-      sets: [{ reps: 0, weight: 0 }]
+      sets: [{ reps: 0, weight: 0 }],
     }));
     createWorkout({ title: workoutTitle, exercises: formattedExercises });
   };
