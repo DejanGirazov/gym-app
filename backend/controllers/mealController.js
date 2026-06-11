@@ -132,8 +132,8 @@ export const searchMeal = async (req, res) => {
     );
 
     const data = await response.json();
-    const validFoods = (data.foods || []).filter((food) => {
-      return (
+    const invalidFoods = (data.foods || []).filter((food) => {
+      return !(
         food.foodNutrients &&
         food.foodNutrients.length > 0 &&
         food.foodNutrients.some((n) =>
@@ -146,7 +146,7 @@ export const searchMeal = async (req, res) => {
         )
       );
     });
-    const foods = validFoods.map((food) => ({
+    const foods = invalidFoods.map((food) => ({
       id: food.fdcId,
       name: food.description,
       calories:
