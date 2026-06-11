@@ -154,3 +154,41 @@ export const searchMeal = async (req, res) => {
     });
   }
 };
+
+export const searchMealById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({
+        error: "Food ID is required",
+      });
+    }
+    const response = await fetch(
+      `https://api.nal.usda.gov/fdc/v1/food/${id}?api_key=${process.env.USDA_API_KEY}`,
+    );
+    
+    const food = await response.json();
+    let baseWeight=100;
+    if (food.servingSize) {
+      baseWeight = food.servingSize;
+    } else if (food.foodPortions?.length > 0) {
+      baseWeight = food.foodPortions[0].gramWeight;
+    }
+    return res.status(200).json({
+      id: food.fdcId,
+      name: food.description,
+      BaseWeight: baseWeight,
+      servingUnit: food.servingSizeUnit,
+      calories: food.labelNutrients.calories.value,
+      protein: food.labelNutrients.protein.value,
+      carbs: food.labelNutrients.carbohydrates.value,
+      fat: food.labelNutrients.fat.value,
+    });
+  } catch (err) {
+    console.log(err.message);
+    return res.status(500).json({
+      error: "Server error",
+      errorMessage: err.message,
+    });
+  }
+};

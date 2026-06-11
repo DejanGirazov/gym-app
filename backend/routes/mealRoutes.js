@@ -6,6 +6,7 @@ import {
     getMeal,
     searchMeal,
     updateMeal,
+    searchMealById
 } from "../controllers/mealController.js";
 import { protectRoute } from "../middleware/protectRoute.js";
 
@@ -17,5 +18,7 @@ router.get("/getLog/:id", protectRoute, getMeal);
 router.put("/update/:id", protectRoute, updateMeal);
 router.delete("/delete/:id", protectRoute, deleteMeal);
 router.get("/search", protectRoute, searchMeal);
+router.get("/search/:id",protectRoute, searchMealById);
 
 export default router;
+
