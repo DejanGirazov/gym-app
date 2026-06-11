@@ -123,8 +123,12 @@ export const searchMeal = async (req, res) => {
       });
     }
 
+    //${process.env.USDA_API_KEY}  ${encodeURIComponent(food)}
     const response = await fetch(
-      `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${process.env.USDA_API_KEY}&query=${encodeURIComponent(food)}`,
+      `https://api.nal.usda.gov/fdc/v1/foods/search` +
+        `?api_key=${process.env.USDA_API_KEY}` +
+        `&query=${encodeURIComponent(food)}` +
+        `&dataType=Foundation,SR%20Legacy`,
     );
 
     const data = await response.json();
@@ -166,9 +170,9 @@ export const searchMealById = async (req, res) => {
     const response = await fetch(
       `https://api.nal.usda.gov/fdc/v1/food/${id}?api_key=${process.env.USDA_API_KEY}`,
     );
-    
+
     const food = await response.json();
-    let baseWeight=100;
+    let baseWeight = 100;
     if (food.servingSize) {
       baseWeight = food.servingSize;
     } else if (food.foodPortions?.length > 0) {
