@@ -132,21 +132,7 @@ export const searchMeal = async (req, res) => {
     );
 
     const data = await response.json();
-    const invalidFoods = (data.foods || []).filter((food) => {
-      return !(
-        food.foodNutrients &&
-        food.foodNutrients.length > 0 &&
-        food.foodNutrients.some((n) =>
-          [
-            "Energy",
-            "Protein",
-            "Carbohydrate, by difference",
-            "Total lipid (fat)",
-          ].includes(n.nutrientName),
-        )
-      );
-    });
-    const foods = invalidFoods.map((food) => ({
+    const foods = data.foods.map((food) => ({
       id: food.fdcId,
       name: food.description,
       calories:
