@@ -118,12 +118,9 @@ export const searchMeal = async (req, res) => {
     const { food } = req.query;
 
     if (!food) {
-      return res.status(400).json({
-        error: "Food query is required",
-      });
+      return res.status(400).json({ error: "Food query is required" });
     }
 
-    //${process.env.USDA_API_KEY}  ${encodeURIComponent(food)}
     const response = await fetch(
       `https://api.nal.usda.gov/fdc/v1/foods/search` +
         `?api_key=${process.env.USDA_API_KEY}` +
@@ -132,42 +129,32 @@ export const searchMeal = async (req, res) => {
     );
 
     const data = await response.json();
+
     const validFoods = (data.foods || []).filter((food) => {
       if (!food.foodNutrients?.length) return false;
+      if (!["Foundation", "SR Legacy"].includes(food.dataType)) return false;
 
-      const hasCalories = food.foodNutrients.some(
-        (n) => n.nutrientName === "Energy" && n.value > 0,
-      );
-      const hasProtein = food.foodNutrients.some(
-        (n) => n.nutrientName === "Protein",
-      );
+      const hasCalories = food.foodNutrients.some((n) => n.nutrientName === "Energy" && n.value > 0);
+      const hasProtein = food.foodNutrients.some((n) => n.nutrientName === "Protein" && n.value >= 0);
+      const hasCarbs = food.foodNutrients.some((n) => n.nutrientName === "Carbohydrate, by difference" && n.value >= 0);
+      const hasFat = food.foodNutrients.some((n) => n.nutrientName === "Total lipid (fat)" && n.value >= 0);
 
-      return hasCalories && hasProtein;
+      return hasCalories && hasProtein && hasCarbs && hasFat;
     });
+
     const foods = validFoods.map((food) => ({
       id: food.fdcId,
       name: food.description,
-      calories:
-        food.foodNutrients.find((n) => n.nutrientName === "Energy")?.value || 0,
-      protein:
-        food.foodNutrients.find((n) => n.nutrientName === "Protein")?.value ||
-        0,
-      carbs:
-        food.foodNutrients.find(
-          (n) => n.nutrientName === "Carbohydrate, by difference",
-        )?.value || 0,
-      fat:
-        food.foodNutrients.find((n) => n.nutrientName === "Total lipid (fat)")
-          ?.value || 0,
+      calories: food.foodNutrients.find((n) => n.nutrientName === "Energy")?.value || 0,
+      protein: food.foodNutrients.find((n) => n.nutrientName === "Protein")?.value || 0,
+      carbs: food.foodNutrients.find((n) => n.nutrientName === "Carbohydrate, by difference")?.value || 0,
+      fat: food.foodNutrients.find((n) => n.nutrientName === "Total lipid (fat)")?.value || 0,
     }));
 
     res.status(200).json(foods);
   } catch (err) {
     console.log(err.message);
-    return res.status(500).json({
-      error: "Server error",
-      errorMessage: err.message,
-    });
+    return res.status(500).json({ error: "Server error", errorMessage: err.message });
   }
 };
 
@@ -181,9 +168,14 @@ export const searchMealById = async (req, res) => {
     const response = await fetch(
       `https://api.nal.usda.gov/fdc/v1/food/${id}?api_key=${process.env.USDA_API_KEY}`,
     );
-    const food = await response.json();
 
-    // Determine base weight
+    // Guard against empty body (some USDA entries return nothing)
+    const text = await response.text();
+    if (!text || text.trim() === "") {
+      return res.status(404).json({ error: "Food not found" });
+    }
+    const food = JSON.parse(text);
+
     let baseWeight = 100;
     if (food.servingSize) {
       baseWeight = food.servingSize;
@@ -191,17 +183,14 @@ export const searchMealById = async (req, res) => {
       baseWeight = food.foodPortions[0].gramWeight;
     }
 
-    // Helper: pull a nutrient value from either format
     const getNutrient = (labelKey, nutrientNames) => {
-      // Format 1: labelNutrients (Branded foods)
       if (food.labelNutrients?.[labelKey]?.value != null) {
         return food.labelNutrients[labelKey].value;
       }
-      // Format 2: foodNutrients array (Foundation / SR Legacy)
       const match = food.foodNutrients?.find((n) =>
-        nutrientNames.includes(n.nutrientName ?? n.name),
+        nutrientNames.includes(n.nutrient?.name),
       );
-      return match?.amount ?? match?.value ?? 0;
+      return match?.amount ?? 0;
     };
 
     return res.status(200).json({
@@ -216,8 +205,6 @@ export const searchMealById = async (req, res) => {
     });
   } catch (err) {
     console.log(err.message);
-    return res
-      .status(500)
-      .json({ error: "Server error", errorMessage: err.message });
+    return res.status(500).json({ error: "Server error", errorMessage: err.message });
   }
 };
