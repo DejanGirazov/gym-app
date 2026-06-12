@@ -125,12 +125,14 @@ export const searchMeal = async (req, res) => {
       `https://api.nal.usda.gov/fdc/v1/foods/search` +
         `?api_key=${process.env.USDA_API_KEY}` +
         `&query=${encodeURIComponent(food)}` +
-        `&dataType=Foundation,SR%20Legacy`,
+        `&dataType=SR%20Legacy`,
     );
 
     const data = await response.json();
+    console.log("USDA API response:", data);
 
     const validFoods = (data.foods || []).filter((food) => {
+      console.log("dataType:", food.dataType, "id:", food.fdcId);
       if (!food.foodNutrients?.length) return false;
       if (!["Foundation", "SR Legacy"].includes(food.dataType)) return false;
 
