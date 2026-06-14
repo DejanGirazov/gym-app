@@ -3,7 +3,7 @@ import calculateCalories from "../utils/calculateCalories.js";
 
 export const createCardioLog = async (req, res) => {
     try{
-        const {type, duration, distance} = req.body;
+        const {type, duration, distance, notes} = req.body;
         const user= req.user._id;
         const weight = req.user.weight || 70;
         if(!type || !duration){
@@ -15,7 +15,8 @@ export const createCardioLog = async (req, res) => {
             type: type.toLowerCase(),
             totalCalories: calories,
             duration,
-            distance: distance || 0
+            distance: distance || 0,
+            notes: notes || "",
         });
         await cardioLog.save();
         res.status(201).json(cardioLog);
