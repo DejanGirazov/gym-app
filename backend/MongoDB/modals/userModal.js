@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
     },
     age: {
       type: Number,
-      required: true,
+      default: null,
     },
     gender: {
       type: String,
@@ -27,15 +27,19 @@ const userSchema = new mongoose.Schema(
     },
     height: {
       type: Number,
+      default: null,
     },
     weight: {
       type: Number,
+      default: null,
     },
     goal: {
       type: String,
+      default: null,
     },
     activityLevel: {
       type: String,
+      default: null,
     },
   },
   { timestamps: true },

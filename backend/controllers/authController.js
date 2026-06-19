@@ -26,10 +26,7 @@ export const signup = async (req, res) => {
       !password ||
       !email ||
       !username ||
-      !gender ||
-      !height ||
-      !weight ||
-      !age
+      !gender
     ) {
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -41,9 +38,9 @@ export const signup = async (req, res) => {
       email,
       password: hashedPassword,
       gender,
-      height,
-      weight,
-      age,
+      height: null,
+      weight: null,
+      age: null,
       goal: null,
       activityLevel: null,
     });
