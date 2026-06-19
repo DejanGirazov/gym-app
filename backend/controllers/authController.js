@@ -4,7 +4,7 @@ import { generateTokenAndSetCookie } from "../utils/generateWebToken.js";
 
 export const signup = async (req, res) => {
   try {
-    const { email, password, gender, height, weight, age, username } = req.body;
+    const { email, password, gender, username } = req.body;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ error: "Invalid email format" });
@@ -22,12 +22,7 @@ export const signup = async (req, res) => {
         .status(400)
         .json({ error: "Password must be at least 6 characters long" });
     }
-    if (
-      !password ||
-      !email ||
-      !username ||
-      !gender
-    ) {
+    if (!password || !email || !username || !gender) {
       return res.status(400).json({ error: "All fields are required" });
     }
     const salt = await bcrypt.genSalt(10);

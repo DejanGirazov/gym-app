@@ -40,6 +40,13 @@ const userSchema = new mongoose.Schema(
     activityLevel: {
       type: String,
       default: null,
+      enum: [
+        "sedentary",
+        "light exercise",
+        "moderate exercise",
+        "heavy exercise",
+        "athlete",
+      ],
     },
   },
   { timestamps: true },
