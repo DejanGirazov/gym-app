@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoutes.js'
 import workoutRoutes from './routes/workoutRoutes.js'
 import mealRoutes from './routes/mealRoutes.js'
 import cardioRoutes from './routes/cardioRoutes.js'
+import aiRoutes from './routes/aiRoutes.js'
 
 
 dotenv.config()
@@ -25,6 +26,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/workout', workoutRoutes);
 app.use('/api/nutrition', mealRoutes);
 app.use('/api/cardio', cardioRoutes);
+app.use('/api/ai', aiRoutes);
 if(process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../frontend/dist')))
 
