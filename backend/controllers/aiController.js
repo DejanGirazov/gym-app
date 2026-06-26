@@ -31,7 +31,9 @@ balance, and one actionable tip appropriate for this time of day.`;
 
     res.json({ summary: response.text });
   } catch (err) {
-    console.log(err.errorMessage);
+    console.log("Error name:", err.name);
+    console.log("Error message:", err.message);
+    console.log("Error stack:", err.stack);
     res.status(500).json({ error: "Server error", errorMessage: err.message });
   }
 };

@@ -116,47 +116,137 @@ export const getMeal = async (req, res) => {
 export const searchMeal = async (req, res) => {
   try {
     const { food } = req.query;
-
-    if (!food) {
-      return res.status(400).json({ error: "Food query is required" });
-    }
+    if (!food) return res.status(400).json({ error: "Food query is required" });
 
     const response = await fetch(
       `https://api.nal.usda.gov/fdc/v1/foods/search` +
         `?api_key=${process.env.USDA_API_KEY}` +
         `&query=${encodeURIComponent(food)}` +
-        `&dataType=SR%20Legacy`,
+        `&dataType=SR%20Legacy` +
+        `&pageSize=50`, // fetch more so filtering has more to work with
     );
 
     const data = await response.json();
-    console.log("USDA API response:", data);
 
-    const validFoods = (data.foods || []).filter((food) => {
-      console.log("dataType:", food.dataType, "id:", food.fdcId);
-      if (!food.foodNutrients?.length) return false;
-      if (!["Foundation", "SR Legacy"].includes(food.dataType)) return false;
+    const JUNK_TERMS = [
+      "babyfood",
+      "baby food",
+      "infant",
+      "toddler",
+      "formula",
+      "supplement",
+      "vitamin",
+      "meal, ready-to-eat",
+      "military",
+      "nfs",
+    ];
 
-      const hasCalories = food.foodNutrients.some((n) => n.nutrientName === "Energy" && n.value > 0);
-      const hasProtein = food.foodNutrients.some((n) => n.nutrientName === "Protein" && n.value >= 0);
-      const hasCarbs = food.foodNutrients.some((n) => n.nutrientName === "Carbohydrate, by difference" && n.value >= 0);
-      const hasFat = food.foodNutrients.some((n) => n.nutrientName === "Total lipid (fat)" && n.value >= 0);
+    const BOOST_TERMS = ["raw", "fresh"];
+
+    const PENALTY_TERMS = [
+      "prepared with",
+      "fast food",
+      "restaurant",
+      "commercial",
+      "frozen meal",
+      "dehydrated",
+    ];
+
+    const isJunk = (name) => {
+      const lower = name.toLowerCase();
+      return JUNK_TERMS.some((t) => lower.includes(t));
+    };
+
+    const toTitleCase = (str) =>
+      str.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+
+    const scoreFood = (name, query) => {
+      const parts = name
+        .toLowerCase()
+        .split(",")
+        .map((p) => p.trim());
+      const primaryName = parts[0];
+      const q = query.toLowerCase().trim();
+      let score = 0;
+
+      // Primary name match quality — this is the most important factor
+      if (primaryName === q) score += 500;
+      else if (primaryName.startsWith(q)) score += 300;
+      else if (primaryName.includes(q)) score += 150;
+      else if (name.toLowerCase().includes(q)) score += 20; // query only in modifiers — barely counts
+
+      // If the query doesn't appear in the primary name at all, heavily punish
+      if (!primaryName.includes(q)) score -= 200;
+
+      // Simplicity — fewer commas = simpler = better
+      score -= (parts.length - 1) * 40;
+
+      // Prefer raw/whole foods
+      if (parts.some((p) => p === "raw")) score += 80;
+      if (parts.some((p) => p.includes("fresh"))) score += 40;
+
+      // Punish clearly secondary foods
+      if (!primaryName.includes(q) && parts.some((p) => p.includes(q)))
+        score -= 100;
+
+      return score;
+    };
+
+    const validFoods = (data.foods || []).filter((item) => {
+      if (!item.foodNutrients?.length) return false;
+      if (!["SR Legacy"].includes(item.dataType)) return false;
+
+      const hasCalories = item.foodNutrients.some(
+        (n) => n.nutrientName === "Energy" && n.value > 0,
+      );
+      const hasProtein = item.foodNutrients.some(
+        (n) => n.nutrientName === "Protein" && n.value >= 0,
+      );
+      const hasCarbs = item.foodNutrients.some(
+        (n) => n.nutrientName === "Carbohydrate, by difference" && n.value >= 0,
+      );
+      const hasFat = item.foodNutrients.some(
+        (n) => n.nutrientName === "Total lipid (fat)" && n.value >= 0,
+      );
 
       return hasCalories && hasProtein && hasCarbs && hasFat;
     });
 
-    const foods = validFoods.map((food) => ({
-      id: food.fdcId,
-      name: food.description,
-      calories: food.foodNutrients.find((n) => n.nutrientName === "Energy")?.value || 0,
-      protein: food.foodNutrients.find((n) => n.nutrientName === "Protein")?.value || 0,
-      carbs: food.foodNutrients.find((n) => n.nutrientName === "Carbohydrate, by difference")?.value || 0,
-      fat: food.foodNutrients.find((n) => n.nutrientName === "Total lipid (fat)")?.value || 0,
-    }));
+    const foods = validFoods
+      .filter((item) => !isJunk(item.description))
+      .filter((item) => {
+        // if the very first word of the primary name isn't related to the query, discard
+        const primaryName = item.description.toLowerCase().split(",")[0].trim();
+        return primaryName.includes(food.toLowerCase().trim());
+      })
+      .map((item) => ({
+        id: item.fdcId,
+        name: toTitleCase(item.description),
+        score: scoreFood(item.description, food),
+        calories:
+          item.foodNutrients.find((n) => n.nutrientName === "Energy")?.value ||
+          0,
+        protein:
+          item.foodNutrients.find((n) => n.nutrientName === "Protein")?.value ||
+          0,
+        carbs:
+          item.foodNutrients.find(
+            (n) => n.nutrientName === "Carbohydrate, by difference",
+          )?.value || 0,
+        fat:
+          item.foodNutrients.find((n) => n.nutrientName === "Total lipid (fat)")
+            ?.value || 0,
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10)
+      .map(({ score, ...rest }) => rest); // strip score before sending to client
 
     res.status(200).json(foods);
   } catch (err) {
     console.log(err.message);
-    return res.status(500).json({ error: "Server error", errorMessage: err.message });
+    return res
+      .status(500)
+      .json({ error: "Server error", errorMessage: err.message });
   }
 };
 
@@ -207,6 +297,8 @@ export const searchMealById = async (req, res) => {
     });
   } catch (err) {
     console.log(err.message);
-    return res.status(500).json({ error: "Server error", errorMessage: err.message });
+    return res
+      .status(500)
+      .json({ error: "Server error", errorMessage: err.message });
   }
 };
