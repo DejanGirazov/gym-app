@@ -1,4 +1,5 @@
 import mealModal from "../MongoDB/modals/mealModal.js";
+import commonFoods from "../data/commonFoods.json" with { type: "json" };
 
 export const createLog = async (req, res) => {
   try {
@@ -118,135 +119,121 @@ export const searchMeal = async (req, res) => {
     const { food } = req.query;
     if (!food) return res.status(400).json({ error: "Food query is required" });
 
-    const response = await fetch(
-      `https://api.nal.usda.gov/fdc/v1/foods/search` +
-        `?api_key=${process.env.USDA_API_KEY}` +
-        `&query=${encodeURIComponent(food)}` +
-        `&dataType=SR%20Legacy` +
-        `&pageSize=50`, // fetch more so filtering has more to work with
-    );
+    const q = food.toLowerCase().trim();
 
-    const data = await response.json();
+    // ─── 1. Local matches ────────────────────────────────────────────────────
+    const localMatches = commonFoods
+      .filter((item) =>
+        item.searchTerms?.some(
+          (term) =>
+            term.includes(q) ||
+            q.includes(term) ||
+            q.split(" ").every((word) => term.includes(word)),
+        ),
+      )
+      .map((item) => ({
+        id: item.fdcId,
+        name: item.name,
+        isLocal: true, // flag so frontend knows it came from local list
+      }));
 
+    // ─── 2. USDA fallback ────────────────────────────────────────────────────
     const JUNK_TERMS = [
-      "babyfood",
-      "baby food",
-      "infant",
-      "toddler",
-      "formula",
-      "supplement",
-      "vitamin",
-      "meal, ready-to-eat",
-      "military",
-      "nfs",
+      "babyfood", "baby food", "infant", "toddler",
+      "formula", "supplement", "vitamin",
+      "meal, ready-to-eat", "military", "nfs",
     ];
-
     const BOOST_TERMS = ["raw", "fresh"];
-
     const PENALTY_TERMS = [
-      "prepared with",
-      "fast food",
-      "restaurant",
-      "commercial",
-      "frozen meal",
-      "dehydrated",
+      "prepared with", "fast food", "restaurant",
+      "commercial", "frozen meal", "dehydrated",
     ];
 
-    const isJunk = (name) => {
-      const lower = name.toLowerCase();
-      return JUNK_TERMS.some((t) => lower.includes(t));
+    const isJunk = (name) =>
+      JUNK_TERMS.some((t) => name.toLowerCase().includes(t));
+
+    const formatFoodName = (description) => {
+      const parts = description.toLowerCase().split(",").map((p) => p.trim()).filter(Boolean);
+      const primary = parts[0];
+      const junkWords = [
+        "meat only", "nfs", "ns as to", "not specified",
+        "broilers or fryers", "type unspecified",
+        "without skin", "with skin", "skin removed",
+        "by difference", "as purchased",
+      ];
+      const cleanModifiers = parts
+        .slice(1)
+        .filter((m) => !junkWords.some((j) => m.includes(j)))
+        .filter((m) => m.length < 30)
+        .slice(0, 2);
+
+      return [...cleanModifiers, primary]
+        .join(" ")
+        .replace(/\b\w/g, (c) => c.toUpperCase());
     };
 
-    const toTitleCase = (str) =>
-      str.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
-
-    const scoreFood = (name, query) => {
-      const parts = name
-        .toLowerCase()
-        .split(",")
-        .map((p) => p.trim());
+    const scoreFood = (name) => {
+      const parts = name.toLowerCase().split(",").map((p) => p.trim());
       const primaryName = parts[0];
-      const q = query.toLowerCase().trim();
       let score = 0;
 
-      // Primary name match quality — this is the most important factor
       if (primaryName === q) score += 500;
       else if (primaryName.startsWith(q)) score += 300;
       else if (primaryName.includes(q)) score += 150;
-      else if (name.toLowerCase().includes(q)) score += 20; // query only in modifiers — barely counts
+      else if (name.toLowerCase().includes(q)) score += 20;
 
-      // If the query doesn't appear in the primary name at all, heavily punish
       if (!primaryName.includes(q)) score -= 200;
-
-      // Simplicity — fewer commas = simpler = better
       score -= (parts.length - 1) * 40;
-
-      // Prefer raw/whole foods
       if (parts.some((p) => p === "raw")) score += 80;
       if (parts.some((p) => p.includes("fresh"))) score += 40;
-
-      // Punish clearly secondary foods
-      if (!primaryName.includes(q) && parts.some((p) => p.includes(q)))
-        score -= 100;
+      BOOST_TERMS.forEach((t) => { if (name.toLowerCase().includes(t)) score += 15; });
+      PENALTY_TERMS.forEach((t) => { if (name.toLowerCase().includes(t)) score -= 30; });
+      if (!primaryName.includes(q) && parts.some((p) => p.includes(q))) score -= 100;
 
       return score;
     };
 
-    const validFoods = (data.foods || []).filter((item) => {
-      if (!item.foodNutrients?.length) return false;
-      if (!["SR Legacy"].includes(item.dataType)) return false;
+    const usdaResponse = await fetch(
+      `https://api.nal.usda.gov/fdc/v1/foods/search` +
+        `?api_key=${process.env.USDA_API_KEY}` +
+        `&query=${encodeURIComponent(food)}` +
+        `&dataType=SR%20Legacy` +
+        `&pageSize=50`,
+    );
 
-      const hasCalories = item.foodNutrients.some(
-        (n) => n.nutrientName === "Energy" && n.value > 0,
-      );
-      const hasProtein = item.foodNutrients.some(
-        (n) => n.nutrientName === "Protein" && n.value >= 0,
-      );
-      const hasCarbs = item.foodNutrients.some(
-        (n) => n.nutrientName === "Carbohydrate, by difference" && n.value >= 0,
-      );
-      const hasFat = item.foodNutrients.some(
-        (n) => n.nutrientName === "Total lipid (fat)" && n.value >= 0,
-      );
+    const usdaData = await usdaResponse.json();
 
-      return hasCalories && hasProtein && hasCarbs && hasFat;
-    });
-
-    const foods = validFoods
-      .filter((item) => !isJunk(item.description))
+    const usdaResults = (usdaData.foods || [])
       .filter((item) => {
-        // if the very first word of the primary name isn't related to the query, discard
+        if (!item.foodNutrients?.length) return false;
         const primaryName = item.description.toLowerCase().split(",")[0].trim();
-        return primaryName.includes(food.toLowerCase().trim());
+        if (!primaryName.includes(q)) return false;
+        return (
+          item.foodNutrients.some((n) => n.nutrientName === "Energy" && n.value > 0) &&
+          item.foodNutrients.some((n) => n.nutrientName === "Protein" && n.value >= 0) &&
+          item.foodNutrients.some((n) => n.nutrientName === "Carbohydrate, by difference" && n.value >= 0) &&
+          item.foodNutrients.some((n) => n.nutrientName === "Total lipid (fat)" && n.value >= 0)
+        );
       })
+      .filter((item) => !isJunk(item.description))
+      // filter out anything already in local results to avoid duplicates
+      .filter((item) => !localMatches.some((local) => local.id === item.fdcId))
       .map((item) => ({
         id: item.fdcId,
-        name: toTitleCase(item.description),
-        score: scoreFood(item.description, food),
-        calories:
-          item.foodNutrients.find((n) => n.nutrientName === "Energy")?.value ||
-          0,
-        protein:
-          item.foodNutrients.find((n) => n.nutrientName === "Protein")?.value ||
-          0,
-        carbs:
-          item.foodNutrients.find(
-            (n) => n.nutrientName === "Carbohydrate, by difference",
-          )?.value || 0,
-        fat:
-          item.foodNutrients.find((n) => n.nutrientName === "Total lipid (fat)")
-            ?.value || 0,
+        name: formatFoodName(item.description),
+        score: scoreFood(item.description),
+        isLocal: false,
       }))
       .sort((a, b) => b.score - a.score)
-      .slice(0, 10)
-      .map(({ score, ...rest }) => rest); // strip score before sending to client
+      .slice(0, 6)
+      .map(({ score, ...rest }) => rest);
 
-    res.status(200).json(foods);
+    // ─── 3. Local first, USDA after ──────────────────────────────────────────
+    res.status(200).json([...localMatches, ...usdaResults]);
+
   } catch (err) {
     console.log(err.message);
-    return res
-      .status(500)
-      .json({ error: "Server error", errorMessage: err.message });
+    return res.status(500).json({ error: "Server error", errorMessage: err.message });
   }
 };
 
@@ -263,6 +250,7 @@ export const searchMealById = async (req, res) => {
 
     // Guard against empty body (some USDA entries return nothing)
     const text = await response.text();
+    console.log(text);
     if (!text || text.trim() === "") {
       return res.status(404).json({ error: "Food not found" });
     }

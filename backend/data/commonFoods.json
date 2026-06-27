@@ -1,0 +1,135 @@
+[
+  { "name": "Chicken Breast", "fdcId": 171477, "searchTerms": ["chicken", "chicken breast"] },
+  { "name": "Chicken Thigh", "fdcId": 172388, "searchTerms": ["chicken", "chicken thigh"] },
+  { "name": "Ground Chicken", "fdcId": 171117, "searchTerms": ["chicken", "ground chicken"] },
+  { "name": "Ground Turkey", "fdcId": 171506, "searchTerms": ["turkey", "ground turkey"] },
+  { "name": "Beef Steak", "fdcId": 169435, "searchTerms": ["beef", "steak"] },
+  { "name": "Ground Beef (80/20)", "fdcId": 171797, "searchTerms": ["beef", "ground beef"] },
+  { "name": "Salmon", "fdcId": 175167, "searchTerms": ["salmon", "fish"] },
+  { "name": "Canned Tuna", "fdcId": 175180, "searchTerms": ["tuna", "canned tuna", "fish"] },
+  { "name": "Fresh Tuna", "fdcId": 175159, "searchTerms": ["tuna", "fresh tuna", "fish"] },
+  { "name": "Shrimp", "fdcId": 175178, "searchTerms": ["shrimp", "prawns", "fish"] },
+  { "name": "Cod", "fdcId": 171958, "searchTerms": ["cod", "fish"] },
+  { "name": "Tilapia", "fdcId": 175177, "searchTerms": ["tilapia", "fish"] },
+
+  { "name": "Whole Egg", "fdcId": 172188, "searchTerms": ["egg", "eggs", "whole egg"] },
+  { "name": "Egg Whites", "fdcId": 172204, "searchTerms": ["egg", "eggs", "egg white", "egg whites"] },
+  { "name": "Egg Yolk", "fdcId": 172185, "searchTerms": ["egg", "eggs", "egg yolk"] },
+
+  { "name": "White Rice (Cooked)", "fdcId": 169711, "searchTerms": ["rice", "white rice"] },
+  { "name": "Brown Rice (Cooked)", "fdcId": 169704, "searchTerms": ["rice", "brown rice"] },
+  { "name": "Oatmeal (Cooked)", "fdcId": 174660, "searchTerms": ["oat", "oats", "oatmeal"] },
+  { "name": "Whole Wheat Bread", "fdcId": 172686, "searchTerms": ["bread", "whole wheat bread"] },
+  { "name": "White Bread", "fdcId": 172679, "searchTerms": ["bread", "white bread"] },
+  { "name": "Bagel", "fdcId": 175051, "searchTerms": ["bagel"] },
+  { "name": "Pasta (Cooked)", "fdcId": 169751, "searchTerms": ["pasta", "spaghetti", "noodles"] },
+  { "name": "Potato (Boiled)", "fdcId": 170114, "searchTerms": ["potato", "potatoes"] },
+  { "name": "Potato (Baked)", "fdcId": 170033, "searchTerms": ["potato", "potatoes", "baked potato"] },
+  { "name": "Sweet Potato", "fdcId": 168482, "searchTerms": ["sweet potato", "sweet potatoes"] },
+  { "name": "French Fries", "fdcId": 170698, "searchTerms": ["fries", "french fries"] },
+  { "name": "Corn (Cooked)", "fdcId": 169998, "searchTerms": ["corn"] },
+  { "name": "Peas (Cooked)", "fdcId": 170420, "searchTerms": ["peas"] },
+
+{ "name": "Banana", "fdcId": 173944, "searchTerms": ["banana"] },
+{ "name": "Apple", "fdcId": 171688, "searchTerms": ["apple"] },
+{ "name": "Orange", "fdcId": 169097, "searchTerms": ["orange"] },
+{ "name": "Blueberries", "fdcId": 171711, "searchTerms": ["blueberry", "blueberries"] },
+{ "name": "Strawberries", "fdcId": 167762, "searchTerms": ["strawberry", "strawberries"] },
+{ "name": "Grapes", "fdcId": 174683, "searchTerms": ["grapes", "grape"] },
+{ "name": "Mango", "fdcId": 169910, "searchTerms": ["mango"] },
+{ "name": "Watermelon", "fdcId": 167765, "searchTerms": ["watermelon"] },
+{ "name": "Avocado", "fdcId": 171706, "searchTerms": ["avocado"] },
+
+{ "name": "Broccoli (Raw)", "fdcId": 170379, "searchTerms": ["broccoli"] },
+{ "name": "Spinach (Raw)", "fdcId": 168462, "searchTerms": ["spinach"] },
+{ "name": "Carrots (Raw)", "fdcId": 170393, "searchTerms": ["carrot", "carrots"] },
+{ "name": "Bell Pepper (Red)", "fdcId": 170108, "searchTerms": ["bell pepper", "pepper", "peppers"] },
+{ "name": "Tomato (Raw)", "fdcId": 170457, "searchTerms": ["tomato", "tomatoes"] },
+{ "name": "Cucumber (Raw)", "fdcId": 168409, "searchTerms": ["cucumber"] },
+{ "name": "Lettuce (Raw)", "fdcId": 169248, "searchTerms": ["lettuce", "salad"] },
+{ "name": "Onion (Raw)", "fdcId": 170000, "searchTerms": ["onion", "onions"] },
+{ "name": "Garlic (Raw)", "fdcId": 169230, "searchTerms": ["garlic"] },
+{ "name": "Zucchini (Raw)", "fdcId": 169291, "searchTerms": ["zucchini", "courgette"] },
+
+{ "name": "Whole Milk", "fdcId": 171265, "searchTerms": ["milk", "whole milk"] },
+{ "name": "Skim Milk", "fdcId": 171269, "searchTerms": ["milk", "skim milk", "skimmed milk"] },
+{ "name": "Greek Yogurt (Plain)", "fdcId": 170903, "searchTerms": ["yogurt", "greek yogurt", "yoghurt"] },
+{ "name": "Yogurt (Plain, Low-fat)", "fdcId": 171284, "searchTerms": ["yogurt", "yoghurt"] },
+{ "name": "Cottage Cheese", "fdcId": 173417, "searchTerms": ["cottage cheese"] },
+{ "name": "Cheddar Cheese", "fdcId": 173414, "searchTerms": ["cheddar", "cheese"] },
+{ "name": "Mozzarella", "fdcId": 173423, "searchTerms": ["mozzarella", "cheese"] },
+{ "name": "Parmesan Cheese", "fdcId": "171247", "searchTerms": ["parmesan"] },
+
+{ "name": "Olive Oil", "fdcId": 171413, "searchTerms": ["olive oil", "oil"] },
+{ "name": "Butter", "fdcId": 173410, "searchTerms": ["butter"] },
+{ "name": "Peanut Butter", "fdcId": 172470, "searchTerms": ["peanut butter"] },
+{ "name": "Almonds", "fdcId": 170567, "searchTerms": ["almond", "almonds", "nuts"] },
+{ "name": "Peanuts", "fdcId": 172430, "searchTerms": ["peanut", "peanuts", "nuts"] },
+{ "name": "Walnuts", "fdcId": 170187, "searchTerms": ["walnut", "walnuts", "nuts"] },
+{ "name": "Cashews", "fdcId": 170162, "searchTerms": ["cashew", "cashews", "nuts"] },
+
+{ "name": "Dark Chocolate (70-85%)", "fdcId": 170273, "searchTerms": ["chocolate", "dark chocolate"] },
+{ "name": "Honey", "fdcId": 169640, "searchTerms": ["honey"] },
+
+{ "name": "Rice Cakes", "fdcId": 173296, "searchTerms": ["rice cake", "rice cakes"] },
+{ "name": "Granola", "fdcId": 173294, "searchTerms": ["granola"] },
+
+{ "name": "Apple Juice", "fdcId": 168869, "searchTerms": ["apple juice", "juice"] },
+{ "name": "Orange Juice", "fdcId": 169098, "searchTerms": ["orange juice", "juice"] },
+
+{ "name": "Chicken Soup", "fdcId": 172924, "searchTerms": ["chicken soup", "soup"] },
+
+{ "name": "Tortilla", "fdcId": 175023, "searchTerms": ["tortilla", "wrap"] },
+
+{ "name": "Pancakes", "fdcId": 175009, "searchTerms": ["pancakes", "pancake"] },
+{ "name": "Waffles", "fdcId": 175039, "searchTerms": ["waffles", "waffle"] },
+
+{ "name": "Ice Cream", "fdcId": 167575, "searchTerms": ["ice cream"] },
+
+{ "name": "Chicken Drumstick", "fdcId": 172852, "searchTerms": ["chicken drumstick", "drumstick"] },
+{ "name": "Chicken Wings", "fdcId": 172390, "searchTerms": ["chicken wings", "wings"] },
+{ "name": "Lean Beef Mince", "fdcId": 174036, "searchTerms": ["beef mince", "ground beef", "minced beef"] },
+{ "name": "Pork Chop", "fdcId": 167903, "searchTerms": ["pork chop", "pork"] },
+
+{ "name": "White Fish (General)", "fdcId": 175177, "searchTerms": ["white fish", "fish"] },
+{ "name": "Mackerel", "fdcId": 175118, "searchTerms": ["mackerel", "fish"] },
+
+{ "name": "Hard Boiled Egg", "fdcId": 173424, "searchTerms": ["hard boiled egg", "egg", "boiled egg"] },
+{ "name": "Scrambled Eggs", "fdcId": 172185, "searchTerms": ["scrambled eggs", "eggs"] },
+
+{ "name": "Mushrooms", "fdcId": 169251, "searchTerms": ["mushroom", "mushrooms"] },
+{ "name": "Eggplant", "fdcId": 169228, "searchTerms": ["eggplant", "aubergine"] },
+
+{ "name": "Cabbage", "fdcId": 169975, "searchTerms": ["cabbage"] },
+{ "name": "Cauliflower", "fdcId": 169986, "searchTerms": ["cauliflower"] },
+
+{ "name": "Pineapple", "fdcId": 169124, "searchTerms": ["pineapple"] },
+
+{ "name": "Peach", "fdcId": 169927, "searchTerms": ["peach"] },
+{ "name": "Pear", "fdcId": 169118, "searchTerms": ["pear"] },
+
+{ "name": "Hazelnuts", "fdcId": 170581, "searchTerms": ["hazelnut", "hazelnuts", "nuts"] },
+
+{ "name": "Sunflower Seeds", "fdcId": 170562, "searchTerms": ["sunflower seeds", "seeds"] },
+{ "name": "Chia Seeds", "fdcId": 170554, "searchTerms": ["chia seeds", "chia", "seeds"] },
+
+{ "name": "Hummus", "fdcId": 174289, "searchTerms": ["hummus", "houmous"] },
+{ "name": "Tofu", "fdcId": 172476, "searchTerms": ["tofu", "bean curd"] },
+
+{ "name": "Sausage", "fdcId": 167875, "searchTerms": ["sausage"] },
+{ "name": "Bacon", "fdcId": 168327, "searchTerms": ["bacon"] },
+
+{ "name": "Croissant", "fdcId": 174987, "searchTerms": ["croissant"] },
+
+{ "name": "Chocolate Milk", "fdcId": 171271, "searchTerms": ["chocolate milk", "milk"] },
+
+{ "name": "Olives", "fdcId": 169094, "searchTerms": ["olives", "olive"] },
+{ "name": "Pickles", "fdcId": 168577, "searchTerms": ["pickles", "gherkins"] },
+
+{ "name": "Ketchup", "fdcId": 168556, "searchTerms": ["ketchup", "tomato sauce"] },
+{ "name": "Mayonnaise", "fdcId": 171009, "searchTerms": ["mayonnaise", "mayo"] },
+{ "name": "Mustard", "fdcId": 172234, "searchTerms": ["mustard"] },
+{ "name": "Mashed Potatoes", "fdcId": "169768", "searchTerms": ["mashed potatoes"] },
+{ "name": "Pistachios", "fdcId": "170184", "searchTerms": ["pistachios"] }
+
+]
