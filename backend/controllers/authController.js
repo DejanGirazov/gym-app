@@ -115,6 +115,21 @@ export const update = async (req, res) => {
       goal,
       activityLevel,
     } = req.body;
+    if (height < 50 || height > 250) {
+      return res
+        .status(400)
+        .json({ error: "Height must be between 50 and 250 cm" });
+    }
+    if (weight < 20 || weight > 300) {
+      return res
+        .status(400)
+        .json({ error: "Weight must be between 20 and 300 kg" });
+    }
+    if(age < 10 || age > 100) {
+      return res
+        .status(400)
+        .json({ error: "Age must be between 10 and 100" });
+    }
     const user = await User.findOne(req.user._id);
     if (!user) {
       return res.status(400).json({ error: "User not found" });
