@@ -60,12 +60,6 @@
     "searchTerms": ["shrimp", "prawns", "fish"]
   },
   { "key": 11, "name": "Cod", "fdcId": 171958, "searchTerms": ["cod", "fish"] },
-  {
-    "key": 12,
-    "name": "Tilapia",
-    "fdcId": 175177,
-    "searchTerms": ["tilapia", "fish"]
-  },
 
   {
     "key": 13,
@@ -73,19 +67,6 @@
     "fdcId": 172188,
     "searchTerms": ["egg", "eggs", "whole egg"]
   },
-  {
-    "key": 14,
-    "name": "Egg Whites",
-    "fdcId": 172204,
-    "searchTerms": ["egg", "eggs", "egg white", "egg whites"]
-  },
-  {
-    "key": 15,
-    "name": "Egg Yolk",
-    "fdcId": 172185,
-    "searchTerms": ["egg", "eggs", "egg yolk"]
-  },
-
   {
     "key": 16,
     "name": "White Rice (Cooked)",
