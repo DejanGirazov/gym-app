@@ -290,3 +290,35 @@ export const searchMealById = async (req, res) => {
       .json({ error: "Server error", errorMessage: err.message });
   }
 };
+
+export const lookupBarcode = async (req, res) => {
+  try {
+    const { code } = req.params;
+
+    const offRes = await fetch(
+      `https://world.openfoodfacts.org/api/v2/product/${code}.json`,
+    );
+    const offData = await offRes.json();
+
+    if (offData.status !== 1 || !offData.product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    const p = offData.product;
+    const n = p.nutriments || {};
+
+    return res.json({
+      id: code,
+      name: p.product_name || p.generic_name || "Unknown product",
+      BaseWeight: 100,
+      calories: n["energy-kcal_100g"] ?? 0,
+      protein: n["proteins_100g"] ?? 0,
+      carbs: n["carbohydrates_100g"] ?? 0,
+      fat: n["fat_100g"] ?? 0,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to look up barcode" });
+  }
+};
+
