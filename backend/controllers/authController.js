@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import User from "../MongoDB/modals/userModal.js";
-import { generateTokenAndSetCookie } from "../utils/generateWebToken.js";
+import { generateToken } from "../utils/generateWebToken.js";
 
 export const signup = async (req, res) => {
   try {
@@ -9,42 +9,36 @@ export const signup = async (req, res) => {
     if (!emailRegex.test(email)) {
       return res.status(400).json({ error: "Invalid email format" });
     }
-    const existingUsername = await User.findOne({ username: username });
-    if (existingUsername) {
-      return res.status(400).json({ error: "Username already exists" });
-    }
-    const existingEmail = await User.findOne({ email: email });
-    if (existingEmail) {
-      return res.status(400).json({ error: "Email already exists" });
-    }
-    if (password.length < 6) {
-      return res
-        .status(400)
-        .json({ error: "Password must be at least 6 characters long" });
-    }
     if (!password || !email || !username || !gender) {
       return res.status(400).json({ error: "All fields are required" });
     }
+    if (password.length < 6) {
+      return res.status(400).json({ error: "Password must be at least 6 characters long" });
+    }
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
+      return res.status(400).json({ error: "Username already exists" });
+    }
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ error: "Email already exists" });
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new User({
-      username,
-      email,
-      password: hashedPassword,
-      gender,
-      height: null,
-      weight: null,
-      age: null,
-      goal: null,
-      activityLevel: null,
+      username, email, password: hashedPassword, gender,
+      height: null, weight: null, age: null, goal: null, activityLevel: null,
     });
+    await newUser.save();
 
-    if (newUser) {
-      generateTokenAndSetCookie(newUser._id, res);
-      await newUser.save();
-      res.status(200).json({
-        message: "User created successfully",
+    const token = generateToken(newUser._id);
+
+    res.status(200).json({
+      message: "User created successfully",
+      token,
+      user: {
         _id: newUser._id,
         gender: newUser.gender,
         username: newUser.username,
@@ -52,12 +46,8 @@ export const signup = async (req, res) => {
         weight: newUser.weight,
         height: newUser.height,
         age: newUser.age,
-        goal: null,
-        activityLevel: null,
-      });
-    } else {
-      res.status(400).json({ error: "User not created" });
-    }
+      },
+    });
   } catch (err) {
     console.log(err.message);
     res.status(500).json({ error: "Server error", errorMessage: err.message });
@@ -75,16 +65,21 @@ export const login = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(400).json({ error: "Invalid password" });
     }
-    generateTokenAndSetCookie(user._id, res);
+
+    const token = generateToken(user._id);
+
     res.status(200).json({
       message: "User logged in successfully",
-      _id: user._id,
-      gender: user.gender,
-      username: user.username,
-      email: user.email,
-      weight: user.weight,
-      height: user.height,
-      age: user.age,
+      token,
+      user: {
+        _id: user._id,
+        gender: user.gender,
+        username: user.username,
+        email: user.email,
+        weight: user.weight,
+        height: user.height,
+        age: user.age,
+      },
     });
   } catch (err) {
     console.log(err.message);
@@ -93,13 +88,9 @@ export const login = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
-  try {
-    res.cookie("jwt", "", { maxAge: 0 });
-    res.status(200).json({ message: "Logged out successfully" });
-  } catch (error) {
-    console.log("error logging out:", error.message);
-    res.status(500).json({ error: "Server error" });
-  }
+  // stateless JWT — nothing to invalidate server-side.
+  // the client just deletes its stored token.
+  res.status(200).json({ message: "Logged out successfully" });
 };
 
 export const update = async (req, res) => {
