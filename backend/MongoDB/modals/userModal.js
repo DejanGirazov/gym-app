@@ -14,7 +14,9 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: function () {
+        return !this.googleId; // only required for local signups
+      },
     },
     age: {
       type: Number,
@@ -37,6 +39,17 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true, // allows many docs to have no googleId without violating uniqueness
+    },
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
+
     activityLevel: {
       type: String,
       default: null,

@@ -156,3 +156,63 @@ export const getMe = async (req, res) => {
     res.status(500).json({ error: "Server error", errorMessage: err.message });
   }
 };
+import { OAuth2Client } from "google-auth-library";
+
+const client = new OAuth2Client();
+
+export const googleAuth = async (req, res) => {
+  try {
+   
+    const { idToken } = req.body;
+   
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: [
+        process.env.GOOGLE_WEB_CLIENT_ID,
+        process.env.GOOGLE_IOS_CLIENT_ID,
+        process.env.GOOGLE_ANDROID_CLIENT_ID,
+      ],
+    });
+    const payload = ticket.getPayload();
+    const { sub: googleId, email } = payload;
+
+    let user = await User.findOne({ $or: [{ googleId }, { email }] });
+
+    if (!user) {
+      user = new User({
+        username: email.split("@")[0] + Math.floor(Math.random() * 10000),
+        email,
+        googleId,
+        authProvider: "google",
+        gender: null,
+        height: null,
+        weight: null,
+        age: null,
+        goal: null,
+        activityLevel: null,
+      });
+      await user.save();
+    } else if (!user.googleId) {
+      // existing local account, same email -> link it
+      user.googleId = googleId;
+      user.authProvider = "google";
+      await user.save();
+    }
+
+    const token = generateToken(user._id);
+
+    res.status(200).json({
+      message: "Logged in with Google",
+      token,
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        gender: user.gender,
+      },
+    });
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).json({ error: "Google auth failed" });
+  }
+};
