@@ -31,6 +31,7 @@ export const signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new User({
+      name: null,
       username,
       email,
       password: hashedPassword,
@@ -83,6 +84,7 @@ export const login = async (req, res) => {
       token,
       user: {
         _id: user._id,
+        name: user.name,
         gender: user.gender,
         username: user.username,
         email: user.email,
@@ -115,6 +117,7 @@ export const update = async (req, res) => {
       gender,
       goal,
       activityLevel,
+      name
     } = req.body;
     if (height < 50 || height > 250) {
       return res
@@ -138,7 +141,7 @@ export const update = async (req, res) => {
       const hashedPassword = await bcrypt.hash(newPassword, salt);
       user.password = hashedPassword;
     }
-
+    user.name = name;
     user.username = username;
     user.email = email;
     user.age = age;
@@ -186,6 +189,7 @@ export const googleAuth = async (req, res) => {
 
     if (!user) {
       user = new User({
+        name: payload.name,
         username:
           payload.name.replace(/\s/g, "") + Math.floor(Math.random() * 1000),
         email,
