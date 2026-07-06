@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import { OAuth2Client } from "google-auth-library";
 import User from "../MongoDB/modals/userModal.js";
 import { generateToken } from "../utils/generateWebToken.js";
 
@@ -13,7 +14,9 @@ export const signup = async (req, res) => {
       return res.status(400).json({ error: "All fields are required" });
     }
     if (password.length < 6) {
-      return res.status(400).json({ error: "Password must be at least 6 characters long" });
+      return res
+        .status(400)
+        .json({ error: "Password must be at least 6 characters long" });
     }
     const existingUsername = await User.findOne({ username });
     if (existingUsername) {
@@ -28,8 +31,15 @@ export const signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new User({
-      username, email, password: hashedPassword, gender,
-      height: null, weight: null, age: null, goal: null, activityLevel: null,
+      username,
+      email,
+      password: hashedPassword,
+      gender,
+      height: null,
+      weight: null,
+      age: null,
+      goal: null,
+      activityLevel: null,
     });
     await newUser.save();
 
@@ -116,10 +126,8 @@ export const update = async (req, res) => {
         .status(400)
         .json({ error: "Weight must be between 20 and 300 kg" });
     }
-    if(age < 10 || age > 100) {
-      return res
-        .status(400)
-        .json({ error: "Age must be between 10 and 100" });
+    if (age < 10 || age > 100) {
+      return res.status(400).json({ error: "Age must be between 10 and 100" });
     }
     const user = await User.findOne(req.user._id);
     if (!user) {
@@ -156,15 +164,13 @@ export const getMe = async (req, res) => {
     res.status(500).json({ error: "Server error", errorMessage: err.message });
   }
 };
-import { OAuth2Client } from "google-auth-library";
 
 const client = new OAuth2Client();
 
 export const googleAuth = async (req, res) => {
   try {
-   
     const { idToken } = req.body;
-   
+
     const ticket = await client.verifyIdToken({
       idToken,
       audience: [
@@ -180,7 +186,8 @@ export const googleAuth = async (req, res) => {
 
     if (!user) {
       user = new User({
-        username: email.split("@")[0] + Math.floor(Math.random() * 10000),
+        username:
+          payload.name.replace(/\s/g, "") + Math.floor(Math.random() * 1000),
         email,
         googleId,
         authProvider: "google",
