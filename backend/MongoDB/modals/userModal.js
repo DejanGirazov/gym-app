@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      required: true,
+      default: null,
       enum: ["male", "female"],
     },
     height: {
