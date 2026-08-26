@@ -1,4 +1,3 @@
-
 import User from "../MongoDB/modals/userModal.js";
 import jwt from 'jsonwebtoken';
 

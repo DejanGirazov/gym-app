@@ -65,6 +65,18 @@ const userSchema = new mongoose.Schema(
         "athlete",
       ],
     },
+    otpCodeHash: {
+      type: String,
+      default: null,
+    },
+    otpExpiresAt: {
+      type: Date,
+      default: null,
+    },
+    otpAttempts: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true },
 );

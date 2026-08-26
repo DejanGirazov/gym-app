@@ -7,6 +7,9 @@ export const createLog = async (req, res) => {
     if (!foods || !type || !Array.isArray(foods)) {
       return res.status(400).json({ error: "Foods and type are required" });
     }
+    if(foods.length === 0) {
+      return res.status(400).json({ error: "Foods array cannot be empty" });
+    }
     const calories = foods.reduce((sum, f) => sum + (f.calories || 0), 0);
     const proteins = foods.reduce((sum, f) => sum + (f.protein || 0), 0);
     const carbs = foods.reduce((sum, f) => sum + (f.carbs || 0), 0);
@@ -21,7 +24,7 @@ export const createLog = async (req, res) => {
       foods,
     });
     await meal.save();
-    res.status(200).json(meal);
+    res.status(201).json(meal);
   } catch (err) {
     console.log(err.message);
     res.status(500).json({ error: "Server error", errorMessage: err.message });
@@ -81,6 +84,9 @@ export const updateMeal = async (req, res) => {
 export const deleteMeal = async (req, res) => {
   try {
     const id = req.params.id;
+    if(!id){
+      return res.status(400).json({ error: "Meal ID is required" });
+    }
     const meal = await mealModal.findOneAndDelete({
       _id: id,
       user: req.user._id,
@@ -98,10 +104,14 @@ export const getMeal = async (req, res) => {
   try {
     const id = req.params.id;
     const user = req.user._id;
+    if(!id){
+      return res.status(400).json({ error: "Meal ID is required" });
+    }
     const meal = await mealModal.findOne({
       _id: id,
       user: req.user._id,
     });
+    
     if (!meal) {
       return res.status(404).json({ error: "Meal not found" });
     }

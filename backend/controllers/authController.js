@@ -2,6 +2,9 @@ import bcrypt from "bcryptjs";
 import { OAuth2Client } from "google-auth-library";
 import User from "../MongoDB/modals/userModal.js";
 import { generateToken } from "../utils/generateWebToken.js";
+import crypto from "crypto";
+import { sendOtpEmail } from "../utils/sendOtpEmail.js"; // you'll build this w/ Nodemailer
+import jwt from "jsonwebtoken";
 
 export const signup = async (req, res) => {
   try {
@@ -77,6 +80,79 @@ export const login = async (req, res) => {
       return res.status(400).json({ error: "Invalid password" });
     }
 
+    // generate 6-digit code
+    const code = crypto.randomInt(100000, 999999).toString();
+    const codeHash = await bcrypt.hash(code, 10);
+
+    user.otpCodeHash = codeHash;
+    user.otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 min
+    user.otpAttempts = 0;
+    await user.save();
+    await sendOtpEmail(user.email, code);
+
+    // short-lived token identifying WHO is mid-verification, not a real session
+    const pendingToken = jwt.sign(
+      { userId: user._id, purpose: "otp" },
+      process.env.JWT_SECRET,
+      { expiresIn: "10m" },
+    );
+
+    res.status(200).json({
+      message: "Verification code sent to email",
+      requires2FA: true,
+      pendingToken,
+    });
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).json({ error: "Server error", errorMessage: err.message });
+  }
+};
+
+// STEP 2 — new endpoint, checks the code, THEN issues the real JWT
+export const verifyOtp = async (req, res) => {
+  try {
+    const { pendingToken, code } = req.body;
+
+    let decoded;
+    try {
+      decoded = jwt.verify(pendingToken, process.env.JWT_SECRET);
+    } catch {
+      return res
+        .status(401)
+        .json({ error: "Verification session expired, please log in again" });
+    }
+    if (decoded.purpose !== "otp") {
+      return res.status(401).json({ error: "Invalid verification token" });
+    }
+
+    const user = await User.findById(decoded.userId);
+    if (!user || !user.otpCodeHash || !user.otpExpiresAt) {
+      return res.status(400).json({ error: "No verification pending" });
+    }
+    if (user.otpExpiresAt < new Date()) {
+      return res
+        .status(400)
+        .json({ error: "Code expired, please log in again" });
+    }
+    if (user.otpAttempts >= 5) {
+      return res
+        .status(429)
+        .json({ error: "Too many attempts, please log in again" });
+    }
+
+    const isValid = await bcrypt.compare(code, user.otpCodeHash);
+    if (!isValid) {
+      user.otpAttempts += 1;
+      await user.save();
+      return res.status(400).json({ error: "Incorrect code" });
+    }
+
+    // success — clear the OTP fields, issue the real JWT
+    user.otpCodeHash = null;
+    user.otpExpiresAt = null;
+    user.otpAttempts = 0;
+    await user.save();
+
     const token = generateToken(user._id);
 
     res.status(200).json({
@@ -117,8 +193,9 @@ export const update = async (req, res) => {
       gender,
       goal,
       activityLevel,
-      name
+      name,
     } = req.body;
+    const id = req.user._id;
     if (height < 50 || height > 250) {
       return res
         .status(400)
@@ -132,7 +209,7 @@ export const update = async (req, res) => {
     if (age < 10 || age > 100) {
       return res.status(400).json({ error: "Age must be between 10 and 100" });
     }
-    const user = await User.findOne(req.user._id);
+    const user = await User.findById(id);
     if (!user) {
       return res.status(400).json({ error: "User not found" });
     }
@@ -141,15 +218,15 @@ export const update = async (req, res) => {
       const hashedPassword = await bcrypt.hash(newPassword, salt);
       user.password = hashedPassword;
     }
-    user.name = name;
-    user.username = username;
-    user.email = email;
-    user.age = age;
-    user.height = height;
-    user.weight = weight;
-    user.gender = gender;
-    user.goal = goal;
-    user.activityLevel = activityLevel;
+    if (name !== undefined) user.name = name;
+    if (username !== undefined) user.username = username;
+    if (email !== undefined) user.email = email;
+    if (age !== undefined) user.age = age;
+    if (height !== undefined) user.height = height;
+    if (weight !== undefined) user.weight = weight;
+    if (gender !== undefined) user.gender = gender;
+    if (goal !== undefined) user.goal = goal;
+    if (activityLevel !== undefined) user.activityLevel = activityLevel;
     await user.save();
     res.status(200).json({ message: "Profile updated successfully" });
   } catch (err) {
