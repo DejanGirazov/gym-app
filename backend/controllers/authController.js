@@ -75,6 +75,12 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(400).json({ error: "User not found" });
     }
+    if (user.authProvider === "google" || !user.password) {
+      return res.status(400).json({
+        error: "This account uses Google Sign-In. Please log in with Google.",
+      });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(400).json({ error: "Invalid password" });
@@ -82,10 +88,11 @@ export const login = async (req, res) => {
 
     // generate 6-digit code
     const code = crypto.randomInt(100000, 999999).toString();
+
     const codeHash = await bcrypt.hash(code, 10);
 
     user.otpCodeHash = codeHash;
-    user.otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 min
+    user.otpExpiresAt = new Date(Date.now() + 3 * 60 * 1000); // 5 min
     user.otpAttempts = 0;
     await user.save();
     await sendOtpEmail(user.email, code);
@@ -94,7 +101,7 @@ export const login = async (req, res) => {
     const pendingToken = jwt.sign(
       { userId: user._id, purpose: "otp" },
       process.env.JWT_SECRET,
-      { expiresIn: "10m" },
+      { expiresIn: "5m" },
     );
 
     res.status(200).json({

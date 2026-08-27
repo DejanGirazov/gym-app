@@ -1,21 +1,17 @@
-import nodemailer from "nodemailer";
+import { BrevoClient } from "@getbrevo/brevo";
 
 export const sendOtpEmail = async (toEmail, code) => {
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_APP_PASSWORD,
-    },
+  const brevo = new BrevoClient({
+    apiKey: process.env.BREVO_API_KEY,
   });
 
   try {
-    await transporter.sendMail({
-      from: `"FitPro" <${process.env.EMAIL_USER}>`,
-      to: toEmail,
+    await brevo.transactionalEmails.sendTransacEmail({
+      sender: { name: "FitPro", email: "fitprofitnessapp@gmail.com" },
+      to: [{ email: toEmail }],
       subject: "Your verification code",
-      text: `Your verification code is ${code}. It expires in 5 minutes.`,
-      html: `
+      textContent: `Your verification code is ${code}. It expires in 5 minutes.`,
+      htmlContent: `
         <div style="font-family: sans-serif; padding: 20px;">
           <h2>Your verification code</h2>
           <p style="font-size: 32px; font-weight: bold; letter-spacing: 4px;">${code}</p>

@@ -14,6 +14,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@getbrevo/brevo": "^6.0.3",
     "@google/genai": "^2.10.0",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
@@ -23,7 +24,8 @@
     "google-auth-library": "^10.9.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.2.4",
-    "nodemailer": "^9.0.5"
+    "nodemailer": "^9.0.5",
+    "resend": "^6.24.0"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",
